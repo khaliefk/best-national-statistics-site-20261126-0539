@@ -1,251 +1,244 @@
-// Arunika in Numbers: routing, rendering and controls.
+// Arunika by the Numbers: routing, painting and controls.
 // Hash routes: #/overview, #/population, #/economy, #/labour, #/prices,
-// #/regions, #/data. Every section is a real page of the single file.
+// #/regions, #/data. One HTML file holds every section; this module
+// shows one at a time and draws its charts when it appears.
 
 import {
-  HEADLINES, POPULATION_SERIES, AGE_STRUCTURE, GDP_GROWTH, GDP_SECTORS,
-  TRADE_SERIES, LABOUR_SERIES, EMPLOYMENT_BY_INDUSTRY, CPI_SERIES, CPI_GROUPS,
-  REGIONS, RELEASES,
+  YEARS, POP_M, AGE_BANDS, AGE_PCT, GDP_REAL, SECTORS, EXPORTS_BN,
+  IMPORTS_BN, UNEMP_PCT, PARTIC_PCT, EMPLOY_PCT, INDUSTRIES, CPI_PCT,
+  CPI_GROUPS, REGIONS, HEADLINES, RELEASES,
 } from "./data.js";
-import { drawLineChart, drawBarChart, drawGroupedBars, drawHorizontalBars } from "./charts.js";
+import { plotLine, plotBars, plotPairs, barList } from "./charts.js";
 
-const PAGES = ["overview", "population", "economy", "labour", "prices", "regions", "data"];
+const SECTIONS = ["overview", "population", "economy", "labour", "prices", "regions", "data"];
 
-function showPage(name) {
-  const page = PAGES.includes(name) ? name : "overview";
-  document.querySelectorAll(".page").forEach((el) => {
-    el.hidden = el.dataset.page !== page;
+const $ = (id) => document.getElementById(id);
+const fmtInt = (n) => n.toLocaleString("en-US");
+const fmtPct1 = (v) => v.toFixed(1) + "%";
+const fmtMillions = (v) => v.toFixed(2) + "m";
+
+// Show one section, mark its nav link, paint its content, jump to top.
+function go(name) {
+  const view = SECTIONS.includes(name) ? name : "overview";
+  document.querySelectorAll(".view").forEach((el) => {
+    el.hidden = el.dataset.view !== view;
   });
-  document.querySelectorAll(".main-nav a").forEach((a) => {
-    a.classList.toggle("active", a.dataset.route === page);
+  document.querySelectorAll(".nav a").forEach((a) => {
+    a.classList.toggle("on", a.dataset.route === view);
   });
-  renderPage(page);
+  paint(view);
   window.scrollTo(0, 0);
 }
 
-function renderPage(page) {
-  if (page === "overview") renderOverview();
-  if (page === "population") renderPopulation();
-  if (page === "economy") renderEconomy();
-  if (page === "labour") renderLabour();
-  if (page === "prices") renderPrices();
-  if (page === "regions") renderRegions();
-  if (page === "data") renderData();
+function paint(view) {
+  if (view === "overview") paintOverview();
+  else if (view === "population") paintPopulation();
+  else if (view === "economy") paintEconomy();
+  else if (view === "labour") paintLabour();
+  else if (view === "prices") paintPrices();
+  else if (view === "regions") paintRegions();
+  else if (view === "data") paintData();
 }
 
-function renderOverview() {
-  const grid = document.getElementById("kpi-grid");
-  if (grid.childElementCount === 0) {
-    HEADLINES.forEach((k) => {
+function paintOverview() {
+  const row = $("stat-row");
+  if (row.childElementCount === 0) {
+    HEADLINES.forEach(([label, value, delta, src, hint]) => {
       const card = document.createElement("article");
-      card.className = "kpi";
+      card.className = "stat";
       card.innerHTML =
-        "<h3></h3><p class='kpi-value'></p><p class='kpi-change'></p><p class='kpi-source'></p><p class='kpi-note'></p>";
-      card.querySelector("h3").textContent = k.label;
-      card.querySelector(".kpi-value").textContent = k.value;
-      card.querySelector(".kpi-change").textContent = k.change;
-      card.querySelector(".kpi-source").textContent = "Source: " + k.source;
-      card.querySelector(".kpi-note").textContent = k.note;
-      grid.appendChild(card);
+        "<h3></h3><p class='stat-big'></p><p class='stat-delta'></p>" +
+        "<p class='stat-src'></p><p class='stat-hint'></p>";
+      card.querySelector("h3").textContent = label;
+      card.querySelector(".stat-big").textContent = value;
+      card.querySelector(".stat-delta").textContent = delta;
+      card.querySelector(".stat-src").textContent = "Source: " + src;
+      card.querySelector(".stat-hint").textContent = hint;
+      row.appendChild(card);
     });
-    const list = document.getElementById("release-list");
-    RELEASES.forEach((r) => {
+    const list = $("news-list");
+    RELEASES.forEach(([date, title, detail]) => {
       const li = document.createElement("li");
       const time = document.createElement("time");
-      time.textContent = r.date;
-      const title = document.createElement("strong");
-      title.textContent = r.title;
-      const detail = document.createElement("span");
-      detail.textContent = r.detail;
-      li.append(time, title, detail);
+      time.textContent = date;
+      const head = document.createElement("strong");
+      head.textContent = title;
+      const body = document.createElement("span");
+      body.textContent = detail;
+      li.append(time, head, body);
       list.appendChild(li);
     });
   }
-  drawLineChart(document.getElementById("chart-population"), POPULATION_SERIES, {
-    unit: "", format: (v) => v.toFixed(2) + "m",
-  });
-  drawBarChart(document.getElementById("chart-gdp"), GDP_GROWTH, {
-    unit: "%", format: (v) => v.toFixed(1) + "%",
-  });
+  plotLine($("fig-population"), YEARS.map(String), POP_M, fmtMillions, "");
+  plotBars($("fig-gdp"), YEARS.map(String), GDP_REAL, fmtPct1, "%");
 }
 
-let populationYear = 2025;
+let pickedYear = 2025;
 
-function renderPopulation() {
-  drawLineChart(document.getElementById("chart-population-full"), POPULATION_SERIES, {
-    unit: "", format: (v) => v.toFixed(2) + "m",
-  });
-  drawBarChart(document.getElementById("chart-age"),
-    AGE_STRUCTURE.map((a) => ({ year: a.group, value: a.share })), {
-      unit: "%", format: (v) => v.toFixed(1) + "%",
-    });
-  const picker = document.getElementById("population-year-picker");
-  if (picker.childElementCount === 0) {
-    POPULATION_SERIES.forEach((p) => {
+function paintPopulation() {
+  plotLine($("fig-population-full"), YEARS.map(String), POP_M, fmtMillions, "");
+  plotBars($("fig-age"), AGE_BANDS, AGE_PCT, fmtPct1, "%");
+  const pills = $("year-pills");
+  if (pills.childElementCount === 0) {
+    YEARS.forEach((y) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.textContent = p.year;
+      btn.textContent = y;
       btn.addEventListener("click", () => {
-        populationYear = p.year;
-        updatePopulationNote();
-        picker.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b === btn));
+        pickedYear = y;
+        refreshPopNote();
       });
-      picker.appendChild(btn);
+      pills.appendChild(btn);
     });
   }
-  updatePopulationNote();
-  const tbody = document.querySelector("#population-table tbody");
+  refreshPopNote();
+  const tbody = document.querySelector("#pop-table tbody");
   if (tbody.childElementCount === 0) {
-    POPULATION_SERIES.forEach((p, i) => {
+    POP_M.forEach((v, i) => {
+      const prev = i === 0 ? null : POP_M[i - 1];
+      const change = prev === null
+        ? "—"
+        : "+" + (((v - prev) / prev) * 100).toFixed(1) + "%";
       const tr = document.createElement("tr");
-      const prev = i === 0 ? null : POPULATION_SERIES[i - 1].value;
-      const change = prev === null ? "—" : "+" + ((p.value - prev) / prev * 100).toFixed(1) + "%";
-      tr.innerHTML = "<td></td><td></td><td></td>";
-      tr.children[0].textContent = p.year;
-      tr.children[1].textContent = p.value.toFixed(2);
-      tr.children[2].textContent = change;
+      tr.innerHTML = "<td>" + YEARS[i] + "</td><td>" + v.toFixed(2) + "</td><td>" + change + "</td>";
       tbody.appendChild(tr);
     });
   }
 }
 
-function updatePopulationNote() {
-  const p = POPULATION_SERIES.find((row) => row.year === populationYear);
-  const idx = POPULATION_SERIES.indexOf(p);
-  const prev = idx === 0 ? null : POPULATION_SERIES[idx - 1].value;
-  const note = document.getElementById("population-year-note");
+function refreshPopNote() {
+  const i = YEARS.indexOf(pickedYear);
+  const prev = i === 0 ? null : POP_M[i - 1];
+  const note = $("pop-year-note");
   const change = prev === null
     ? "the first year of the series."
-    : "up " + ((p.value - prev) / prev * 100).toFixed(1) + "% on " + POPULATION_SERIES[idx - 1].year + ".";
-  note.textContent = "In " + p.year + " the mid-year population was " + p.value.toFixed(2) + " million, " + change;
-  document.querySelectorAll("#population-year-picker button").forEach((b) => {
-    b.classList.toggle("active", Number(b.textContent) === populationYear);
+    : "up " + (((POP_M[i] - prev) / prev) * 100).toFixed(1) + "% on " + YEARS[i - 1] + ".";
+  note.textContent =
+    "In " + pickedYear + " the mid-year population was " + POP_M[i].toFixed(2) + " million, " + change;
+  document.querySelectorAll("#year-pills button").forEach((b) => {
+    b.classList.toggle("on", Number(b.textContent) === pickedYear);
   });
 }
 
-function renderEconomy() {
-  drawBarChart(document.getElementById("chart-gdp-full"), GDP_GROWTH, {
-    unit: "%", format: (v) => v.toFixed(1) + "%",
-  });
-  drawGroupedBars(document.getElementById("chart-trade"),
-    TRADE_SERIES.map((t) => ({ year: t.year, a: t.exports, b: t.imports })), {
-      unit: "", labelA: "Exports", labelB: "Imports",
-    });
-  drawHorizontalBars(document.getElementById("sector-bars"),
-    GDP_SECTORS.map((s) => ({ label: s.sector, value: s.share })), {
-      format: (v) => v.toFixed(1) + "%",
-    });
+function paintEconomy() {
+  plotBars($("fig-gdp-full"), YEARS.map(String), GDP_REAL, fmtPct1, "%");
+  plotPairs($("fig-trade"), YEARS.map(String), EXPORTS_BN, IMPORTS_BN, "Exports", "Imports");
+  barList($("sector-bars"), SECTORS, (v) => v.toFixed(1) + "%");
 }
 
-let industrySort = { key: "jobs", dir: -1 };
+let sortCol = 1;
+let sortAsc = false;
 
-function renderLabour() {
-  drawLineChart(document.getElementById("chart-unemployment"),
-    LABOUR_SERIES.map((l) => ({ year: l.year, value: l.unemployment })), {
-      unit: "%", format: (v) => v.toFixed(1) + "%",
-    });
-  drawLineChart(document.getElementById("chart-participation"),
-    LABOUR_SERIES.map((l) => ({ year: l.year, value: l.participation })), {
-      unit: "%", format: (v) => v.toFixed(1) + "%",
-    });
-  renderIndustryTable();
+function paintLabour() {
+  plotLine($("fig-unemployment"), YEARS.map(String), UNEMP_PCT, fmtPct1, "%");
+  plotLine($("fig-participation"), YEARS.map(String), PARTIC_PCT, fmtPct1, "%");
+  paintIndustry();
 }
 
-function renderIndustryTable() {
-  const rows = EMPLOYMENT_BY_INDUSTRY.slice().sort((a, b) => {
-    const k = industrySort.key;
-    const diff = typeof a[k] === "string" ? a[k].localeCompare(b[k]) : a[k] - b[k];
-    return diff * industrySort.dir;
+function paintIndustry() {
+  const rows = INDUSTRIES.slice().sort((a, b) => {
+    const diff = typeof a[sortCol] === "string"
+      ? a[sortCol].localeCompare(b[sortCol])
+      : a[sortCol] - b[sortCol];
+    return sortAsc ? diff : -diff;
   });
   const tbody = document.querySelector("#industry-table tbody");
   tbody.innerHTML = "";
-  rows.forEach((r) => {
+  rows.forEach(([name, jobs, share]) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = "<td></td><td></td><td></td>";
-    tr.children[0].textContent = r.industry;
-    tr.children[1].textContent = r.jobs.toLocaleString("en-US");
-    tr.children[2].textContent = r.share.toFixed(1) + "%";
+    tr.innerHTML =
+      "<td>" + name + "</td><td>" + fmtInt(jobs) + "</td><td>" + share.toFixed(1) + "%</td>";
     tbody.appendChild(tr);
   });
 }
 
-function renderPrices() {
-  drawBarChart(document.getElementById("chart-cpi"), CPI_SERIES, {
-    unit: "%", format: (v) => v.toFixed(1) + "%",
-  });
-  drawHorizontalBars(document.getElementById("cpi-bars"),
-    CPI_GROUPS.map((g) => ({ label: g.group, value: g.change, amber: g.change >= 3.5 })), {
-      format: (v) => "+" + v.toFixed(1) + "%",
-    });
+function paintPrices() {
+  plotBars($("fig-cpi"), YEARS.map(String), CPI_PCT, fmtPct1, "%");
+  barList(
+    $("cpi-bars"),
+    CPI_GROUPS.map(([g, c]) => [g, c, c >= 3.5]),
+    (v) => "+" + v.toFixed(1) + "%",
+  );
 }
 
-let regionMetric = "gdpPerCapita";
+let regionMetric = "gdp";
 
-function renderRegions() {
-  const metricLabels = {
-    gdpPerCapita: { label: "GDP per capita, AR", format: (v) => "AR " + v.toLocaleString("en-US") },
-    population: { label: "Population, millions", format: (v) => v.toFixed(2) + "m" },
-    unemployment: { label: "Unemployment, %", format: (v) => v.toFixed(1) + "%" },
+function paintRegions() {
+  const defs = {
+    gdp: { label: "GDP per capita, AR", fmt: (v) => "AR " + fmtInt(v) },
+    pop: { label: "Population, millions", fmt: (v) => v.toFixed(2) + "m" },
+    unemp: { label: "Unemployment, %", fmt: (v) => v.toFixed(1) + "%" },
   };
-  const meta = metricLabels[regionMetric];
-  drawBarChart(document.getElementById("chart-regions"),
-    REGIONS.map((r) => ({ year: r.name, value: r[regionMetric] })), {
-      unit: "", format: meta.format,
-    });
-  const best = REGIONS.reduce((a, b) => (b[regionMetric] > a[regionMetric] ? b : a));
-  const note = document.getElementById("region-note");
-  if (regionMetric === "unemployment") {
-    const lowest = REGIONS.reduce((a, b) => (b[regionMetric] < a[regionMetric] ? b : a));
-    note.textContent = "Lowest unemployment: " + lowest.name + " at " + lowest.unemployment.toFixed(1) + "%. Highest: " + best.name + " at " + best.unemployment.toFixed(1) + "%.";
+  const def = defs[regionMetric];
+  const col = regionMetric === "gdp" ? 3 : regionMetric === "pop" ? 2 : 4;
+  plotBars(
+    $("fig-regions"),
+    REGIONS.map((r) => r[0]),
+    REGIONS.map((r) => r[col]),
+    def.fmt,
+    "",
+    regionMetric === "unemp" ? "#b3402e" : undefined,
+  );
+  const top = REGIONS.reduce((a, b) => (b[col] > a[col] ? b : a));
+  const note = $("region-note");
+  if (regionMetric === "unemp") {
+    const low = REGIONS.reduce((a, b) => (b[col] < a[col] ? b : a));
+    note.textContent =
+      "Lowest unemployment: " + low[0] + " at " + low[4].toFixed(1) + "%. Highest: " +
+      top[0] + " at " + top[4].toFixed(1) + "%.";
   } else {
-    note.textContent = "Highest " + meta.label.toLowerCase() + ": " + best.name + " (" + meta.format(best[regionMetric]) + ").";
+    note.textContent =
+      "Highest " + def.label.toLowerCase() + ": " + top[0] + " (" + def.fmt(top[col]) + ").";
   }
   const tbody = document.querySelector("#region-table tbody");
   if (tbody.childElementCount === 0) {
-    REGIONS.forEach((r) => {
+    REGIONS.forEach(([name, capital, pop, gdp, unemp]) => {
       const tr = document.createElement("tr");
-      tr.innerHTML = "<td></td><td></td><td></td><td></td><td></td>";
-      tr.children[0].textContent = r.name;
-      tr.children[1].textContent = r.capital;
-      tr.children[2].textContent = r.population.toFixed(2);
-      tr.children[3].textContent = r.gdpPerCapita.toLocaleString("en-US");
-      tr.children[4].textContent = r.unemployment.toFixed(1) + "%";
+      tr.innerHTML =
+        "<td>" + name + "</td><td>" + capital + "</td><td>" + pop.toFixed(2) + "</td>" +
+        "<td>" + fmtInt(gdp) + "</td><td>" + unemp.toFixed(1) + "%</td>";
       tbody.appendChild(tr);
     });
   }
 }
 
-function toCsv(headers, rows) {
+// Build a CSV string from headers and rows, quoting every cell.
+function csvOf(headers, rows) {
+  const cell = (c) => '"' + String(c).replace(/"/g, '""') + '"';
   const lines = [headers.join(",")];
-  rows.forEach((r) => lines.push(r.map((c) => '"' + String(c).replace(/"/g, '""') + '"').join(",")));
+  rows.forEach((r) => lines.push(r.map(cell).join(",")));
   return lines.join("\n");
 }
 
-function renderData() {
-  const list = document.getElementById("download-list");
+function paintData() {
+  const list = $("file-list");
   if (list.childElementCount !== 0) return;
   const files = [
     {
       name: "population-2019-2025.csv",
       label: "Population by year, 2019 to 2025",
-      csv: toCsv(["year", "population_millions"], POPULATION_SERIES.map((p) => [p.year, p.value])),
+      csv: csvOf(["year", "population_millions"], YEARS.map((y, i) => [y, POP_M[i]])),
     },
     {
       name: "gdp-growth-2019-2025.csv",
       label: "Real GDP growth by year, 2019 to 2025",
-      csv: toCsv(["year", "real_gdp_growth_pct"], GDP_GROWTH.map((g) => [g.year, g.value])),
+      csv: csvOf(["year", "real_gdp_growth_pct"], YEARS.map((y, i) => [y, GDP_REAL[i]])),
     },
     {
       name: "labour-2019-2025.csv",
       label: "Unemployment, participation and employment, 2019 to 2025",
-      csv: toCsv(["year", "unemployment_pct", "participation_pct", "employment_pct"],
-        LABOUR_SERIES.map((l) => [l.year, l.unemployment, l.participation, l.employment])),
+      csv: csvOf(
+        ["year", "unemployment_pct", "participation_pct", "employment_pct"],
+        YEARS.map((y, i) => [y, UNEMP_PCT[i], PARTIC_PCT[i], EMPLOY_PCT[i]]),
+      ),
     },
     {
       name: "regions-2025.csv",
       label: "Regions: population, GDP per capita and unemployment, 2025",
-      csv: toCsv(["region", "capital", "population_millions", "gdp_per_capita_ar", "unemployment_pct"],
-        REGIONS.map((r) => [r.name, r.capital, r.population, r.gdpPerCapita, r.unemployment])),
+      csv: csvOf(
+        ["region", "capital", "population_millions", "gdp_per_capita_ar", "unemployment_pct"],
+        REGIONS.map(([n, c, p, g, u]) => [n, c, p, g, u]),
+      ),
     },
   ];
   files.forEach((f) => {
@@ -261,11 +254,17 @@ function renderData() {
   });
 }
 
-// Search across headline indicators, releases and regions.
-const SEARCH_INDEX = [
-  ...HEADLINES.map((k) => ({ text: k.label + " " + k.value + " " + k.source, route: "overview", label: k.label + ": " + k.value })),
-  ...RELEASES.map((r) => ({ text: r.title + " " + r.detail, route: "overview", label: r.title })),
-  ...REGIONS.map((r) => ({ text: r.name + " " + r.capital, route: "regions", label: r.name + " region, capital " + r.capital })),
+// Search across headlines, releases and regions.
+const LOOKUP = [
+  ...HEADLINES.map(([label, value, , src]) => ({
+    text: label + " " + value + " " + src, route: "overview", label: label + ": " + value,
+  })),
+  ...RELEASES.map(([date, title, detail]) => ({
+    text: title + " " + detail, route: "overview", label: title,
+  })),
+  ...REGIONS.map(([name, capital]) => ({
+    text: name + " " + capital, route: "regions", label: name + " region, capital " + capital,
+  })),
   { text: "population age structure census", route: "population", label: "Population: 18.42 million people" },
   { text: "gdp growth economy trade sectors manufacturing", route: "economy", label: "Economy: GDP AR 412.6 billion" },
   { text: "unemployment jobs labour participation employment industry", route: "labour", label: "Jobs: unemployment 5.8%" },
@@ -273,11 +272,11 @@ const SEARCH_INDEX = [
   { text: "download tables csv methods sources", route: "data", label: "Data & sources: download the tables" },
 ];
 
-function runSearch(query) {
-  const box = document.getElementById("search-results");
+function lookup(query) {
+  const box = $("search-hits");
   const q = query.trim().toLowerCase();
   if (q.length < 2) { box.hidden = true; return; }
-  const hits = SEARCH_INDEX.filter((item) => item.text.toLowerCase().includes(q)).slice(0, 6);
+  const hits = LOOKUP.filter((item) => item.text.toLowerCase().includes(q)).slice(0, 6);
   if (hits.length === 0) {
     box.hidden = false;
     box.textContent = "No match for \"" + query.trim() + "\". Try population, unemployment or inflation.";
@@ -297,28 +296,28 @@ function runSearch(query) {
   });
 }
 
-document.getElementById("site-search").addEventListener("submit", (e) => {
+$("site-search").addEventListener("submit", (e) => {
   e.preventDefault();
-  runSearch(document.getElementById("search-box").value);
+  lookup($("search-box").value);
 });
-document.getElementById("search-box").addEventListener("input", (e) => runSearch(e.target.value));
+$("search-box").addEventListener("input", (e) => lookup(e.target.value));
 
 document.querySelectorAll("#industry-table th button").forEach((btn) => {
   btn.addEventListener("click", () => {
-    const key = btn.dataset.sort;
-    if (industrySort.key === key) industrySort.dir *= -1;
-    else industrySort = { key, dir: key === "industry" ? 1 : -1 };
-    renderIndustryTable();
+    const col = Number(btn.dataset.sort);
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = col === 0; }
+    paintIndustry();
   });
 });
 
-document.getElementById("region-metric").addEventListener("change", (e) => {
+$("region-metric").addEventListener("change", (e) => {
   regionMetric = e.target.value;
-  renderRegions();
+  paintRegions();
 });
 
 window.addEventListener("hashchange", () => {
-  showPage(location.hash.replace(/^#\//, ""));
+  go(location.hash.replace(/^#\//, ""));
 });
 
-showPage(location.hash.replace(/^#\//, ""));
+go(location.hash.replace(/^#\//, ""));

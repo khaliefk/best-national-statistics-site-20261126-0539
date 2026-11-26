@@ -1,11 +1,11 @@
-// Titik masuk situs Arunika in Numbers. Node 22, pustaka standar saja,
-// tidak ada dependensi luar.
+// Entry point for the Arunika by the Numbers site. Node 22, standard
+// library only, no outside dependencies.
 //
-// Kerja program ini cuma menyiapkan folder keluaran untuk grader. Isi
-// repo disalin ke sana, lalu dossier.json ditulis. Dossier itu yang
-// dibaca grader, jadi isinya dibuat lewat pustaka make.fun yang sudah
-// di-vendor di repo ini. Buat jalanin lokal, MAKEFUN_OUTPUT_DIR
-// menggantikan /output:
+// The grader runs this program twice in a fresh container with no
+// network. Its only job is to stage the hand-in: copy app/ and
+// screenshots/ from the repository into the output folder, then write
+// dossier.json there with the make.fun library vendored in this repo.
+// Run it locally with MAKEFUN_OUTPUT_DIR standing in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -13,57 +13,46 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildDossier } from "./vendor/makefun-frontend.ts";
 
-type SourceFolder = {
-  name: string;
-  mustExist: boolean;
-};
-
-// Folder mana saja yang ikut disalin, dan mana yang wajib ada. app/
-// harus ada, kalau tidak ada berarti repo-nya rusak. screenshots/
-// boleh tidak ada, nanti dibuatkan folder kosong.
-const SOURCES: SourceFolder[] = [
-  { name: "app", mustExist: true },
-  { name: "screenshots", mustExist: false },
+// Which folders are staged, and which one the entry cannot do without.
+// app/ holds the site and must be there; screenshots/ is created empty
+// when it is missing so the dossier still builds.
+const STAGED = [
+  { folder: "app", required: true },
+  { folder: "screenshots", required: false },
 ];
 
-function resolveOutputDir(): string {
+// Caps the sealed scorer enforces, kept in one place. text_max_bytes
+// bounds the dossier text. The other three reject entries the scorer
+// would reject too: more than 4 screenshots, one screenshot over
+// 256 KiB, or app/ past 993 files and folders or 16 MiB. The 993
+// counts against /output's own 1,000-entry cap, so leave it alone.
+const DOSSIER_LIMITS = {
+  text_max_bytes: 163840,
+  screenshots: { max: 4, max_bytes: 262144 },
+  app_max_files: 993,
+  app_max_bytes: 16777216,
+};
+
+function outputDir(): string {
   return process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
 }
 
-function stageSources(repoDir: string, outputDir: string): void {
-  for (const source of SOURCES) {
-    const from = join(repoDir, source.name);
-    const to = join(outputDir, source.name);
+function stage(repoDir: string, outDir: string): void {
+  for (const entry of STAGED) {
+    const from = join(repoDir, entry.folder);
+    const to = join(outDir, entry.folder);
     mkdirSync(to, { recursive: true });
     if (existsSync(from)) {
       cpSync(from, to, { recursive: true });
-    } else if (source.mustExist) {
-      throw new Error(`folder wajib tidak ketemu: ${from}`);
+    } else if (entry.required) {
+      throw new Error(`required folder missing: ${from}`);
     }
   }
 }
 
-// Angka-angka batas dari scorer, dikumpulkan di satu tempat supaya gampang
-// dicek. text_max_bytes yang menentukan ukuran berkas teks di dossier.
-// Tiga batas lain menolak entri yang scorer juga akan tolak: lebih dari
-// 4 screenshot, satu screenshot di atas 256 KiB, app/ di atas 993 berkas
-// dan folder, atau app/ di atas 16 MiB. Angka 993 dihitung bareng batas
-// 1000 entri milik /output, jadi jangan diubah sembarangan.
-function dossierOptions() {
-  return {
-    text_max_bytes: 163840,
-    screenshots: { max: 4, max_bytes: 262144 },
-    app_max_files: 993,
-    app_max_bytes: 16777216,
-  };
-}
-
 const repoDir = fileURLToPath(new URL(".", import.meta.url));
-const outputDir = resolveOutputDir();
+const outDir = outputDir();
 
-mkdirSync(outputDir, { recursive: true });
-stageSources(repoDir, outputDir);
-writeFileSync(
-  join(outputDir, "dossier.json"),
-  buildDossier(outputDir, dossierOptions()),
-);
+mkdirSync(outDir, { recursive: true });
+stage(repoDir, outDir);
+writeFileSync(join(outDir, "dossier.json"), buildDossier(outDir, DOSSIER_LIMITS));

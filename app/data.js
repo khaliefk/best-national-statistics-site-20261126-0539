@@ -1,141 +1,105 @@
-// Statistics data for Arunika, compiled by the National Statistics Office.
-// Every series carries its source and reference year. Figures are the
-// office's published estimates for the fictional country of Arunika.
+// Figures for Arunika, published by its National Statistics Office.
+// The country is fictional; the office and every number here were made
+// for this site. Each series names its source and reference year where
+// it is shown. Values are stored as parallel arrays so a year and its
+// figure always line up by position.
 
-export const META = {
-  country: "Arunika",
-  office: "National Statistics Office of Arunika",
-  lastUpdated: "14 November 2026",
-  currency: "arun (AR)",
-};
+export const COUNTRY = "Arunika";
+export const OFFICE = "National Statistics Office of Arunika";
+export const UPDATED = "14 November 2026";
+export const MONEY = "AR";
 
+// Calendar years covered by the time series on this site.
 export const YEARS = [2019, 2020, 2021, 2022, 2023, 2024, 2025];
 
-// Headline indicators, latest year first in the table below.
-export const HEADLINES = [
-  { id: "population", label: "Population", value: "18.42m", change: "+0.9% on 2024", source: "Population Estimates 2025", note: "Mid-year estimate, 30 June 2025." },
-  { id: "gdp", label: "GDP", value: "AR 412.6bn", change: "+4.1% real growth", source: "National Accounts 2025", note: "Current prices; real growth at 2020 prices." },
-  { id: "gdpPerCapita", label: "GDP per capita", value: "AR 22,398", change: "+3.2% on 2024", source: "National Accounts 2025", note: "Current prices." },
-  { id: "unemployment", label: "Unemployment rate", value: "5.8%", change: "0.4 pts lower", source: "Labour Force Survey, Q3 2025", note: "People aged 15 to 64, seasonally adjusted." },
-  { id: "inflation", label: "Inflation (CPI)", value: "3.1%", change: "0.6 pts lower", source: "Consumer Prices, October 2025", note: "Annual change, all items." },
-  { id: "medianIncome", label: "Median monthly income", value: "AR 1,940", change: "+5.2% nominal", source: "Household Income Survey 2024", note: "Employees, gross, before tax." },
+// Mid-year population, millions of people.
+export const POP_M = [17.31, 17.48, 17.66, 17.89, 18.09, 18.26, 18.42];
+
+// Share of the population in each age band, 2025, percent.
+export const AGE_BANDS = ["0–14", "15–24", "25–54", "55–64", "65+"];
+export const AGE_PCT = [24.1, 16.8, 41.3, 9.6, 8.2];
+
+// Real GDP growth, percent a year.
+export const GDP_REAL = [3.4, -1.8, 4.6, 5.2, 3.8, 4.4, 4.1];
+
+// Share of GDP by sector, 2025, percent. Each row is [sector, share].
+export const SECTORS = [
+  ["Agriculture, forestry and fishing", 11.4],
+  ["Mining and quarrying", 6.2],
+  ["Manufacturing", 19.8],
+  ["Construction", 7.1],
+  ["Trade, hotels and restaurants", 16.5],
+  ["Transport and communications", 9.3],
+  ["Finance and business services", 12.6],
+  ["Public services and other", 17.1],
 ];
 
-// Population by year (millions) and age structure for the latest year.
-export const POPULATION_SERIES = [
-  { year: 2019, value: 17.31 },
-  { year: 2020, value: 17.48 },
-  { year: 2021, value: 17.66 },
-  { year: 2022, value: 17.89 },
-  { year: 2023, value: 18.09 },
-  { year: 2024, value: 18.26 },
-  { year: 2025, value: 18.42 },
+// Trade in goods, AR billion a year.
+export const EXPORTS_BN = [58.2, 51.7, 63.8, 74.5, 71.9, 76.3, 81.2];
+export const IMPORTS_BN = [61.4, 54.9, 66.1, 78.2, 76.4, 79.8, 83.6];
+
+// Labour market, percent. Unemployment is a share of the labour force;
+// participation and employment are shares of people aged 15 to 64.
+export const UNEMP_PCT = [6.9, 8.4, 7.6, 6.8, 6.3, 6.2, 5.8];
+export const PARTIC_PCT = [67.2, 64.8, 66.1, 67.4, 68.0, 68.3, 68.7];
+export const EMPLOY_PCT = [62.6, 59.4, 61.1, 62.8, 63.7, 64.1, 64.7];
+
+// Jobs by industry, 2025. Each row is [industry, jobs in thousands, share %].
+export const INDUSTRIES = [
+  ["Agriculture", 2140, 22.4],
+  ["Manufacturing", 1730, 18.1],
+  ["Trade and retail", 1610, 16.9],
+  ["Construction", 820, 8.6],
+  ["Transport and storage", 540, 5.7],
+  ["Education and health", 1180, 12.4],
+  ["Public administration", 690, 7.2],
+  ["Other services", 830, 8.7],
 ];
 
-export const AGE_STRUCTURE = [
-  { group: "0-14", share: 24.1 },
-  { group: "15-24", share: 16.8 },
-  { group: "25-54", share: 41.3 },
-  { group: "55-64", share: 9.6 },
-  { group: "65+", share: 8.2 },
-];
+// Consumer prices, annual change, percent.
+export const CPI_PCT = [2.8, 1.9, 2.4, 5.6, 4.2, 3.7, 3.1];
 
-// Real GDP growth by year (%).
-export const GDP_GROWTH = [
-  { year: 2019, value: 3.4 },
-  { year: 2020, value: -1.8 },
-  { year: 2021, value: 4.6 },
-  { year: 2022, value: 5.2 },
-  { year: 2023, value: 3.8 },
-  { year: 2024, value: 4.4 },
-  { year: 2025, value: 4.1 },
-];
-
-// GDP by sector, share of total, 2025 (%).
-export const GDP_SECTORS = [
-  { sector: "Agriculture, forestry and fishing", share: 11.4 },
-  { sector: "Mining and quarrying", share: 6.2 },
-  { sector: "Manufacturing", share: 19.8 },
-  { sector: "Construction", share: 7.1 },
-  { sector: "Trade, hotels and restaurants", share: 16.5 },
-  { sector: "Transport and communications", share: 9.3 },
-  { sector: "Finance and business services", share: 12.6 },
-  { sector: "Public services and other", share: 17.1 },
-];
-
-// Trade: exports and imports, AR billion, by year.
-export const TRADE_SERIES = [
-  { year: 2019, exports: 58.2, imports: 61.4 },
-  { year: 2020, exports: 51.7, imports: 54.9 },
-  { year: 2021, exports: 63.8, imports: 66.1 },
-  { year: 2022, exports: 74.5, imports: 78.2 },
-  { year: 2023, exports: 71.9, imports: 76.4 },
-  { year: 2024, exports: 76.3, imports: 79.8 },
-  { year: 2025, exports: 81.2, imports: 83.6 },
-];
-
-// Labour market by year.
-export const LABOUR_SERIES = [
-  { year: 2019, unemployment: 6.9, participation: 67.2, employment: 62.6 },
-  { year: 2020, unemployment: 8.4, participation: 64.8, employment: 59.4 },
-  { year: 2021, unemployment: 7.6, participation: 66.1, employment: 61.1 },
-  { year: 2022, unemployment: 6.8, participation: 67.4, employment: 62.8 },
-  { year: 2023, unemployment: 6.3, participation: 68.0, employment: 63.7 },
-  { year: 2024, unemployment: 6.2, participation: 68.3, employment: 64.1 },
-  { year: 2025, unemployment: 5.8, participation: 68.7, employment: 64.7 },
-];
-
-// Employment by industry, 2025 (thousands of jobs, share %).
-export const EMPLOYMENT_BY_INDUSTRY = [
-  { industry: "Agriculture", jobs: 2140, share: 22.4 },
-  { industry: "Manufacturing", jobs: 1730, share: 18.1 },
-  { industry: "Trade and retail", jobs: 1610, share: 16.9 },
-  { industry: "Construction", jobs: 820, share: 8.6 },
-  { industry: "Transport and storage", jobs: 540, share: 5.7 },
-  { industry: "Education and health", jobs: 1180, share: 12.4 },
-  { industry: "Public administration", jobs: 690, share: 7.2 },
-  { industry: "Other services", jobs: 830, share: 8.7 },
-];
-
-// CPI annual change by year (%).
-export const CPI_SERIES = [
-  { year: 2019, value: 2.8 },
-  { year: 2020, value: 1.9 },
-  { year: 2021, value: 2.4 },
-  { year: 2022, value: 5.6 },
-  { year: 2023, value: 4.2 },
-  { year: 2024, value: 3.7 },
-  { year: 2025, value: 3.1 },
-];
-
-// CPI by group, annual change October 2025 (%).
+// CPI groups, annual change in October 2025, percent.
+// Each row is [group, change].
 export const CPI_GROUPS = [
-  { group: "Food and non-alcoholic drinks", change: 4.0 },
-  { group: "Housing, water and energy", change: 2.6 },
-  { group: "Transport", change: 1.8 },
-  { group: "Health", change: 3.4 },
-  { group: "Education", change: 2.1 },
-  { group: "Recreation and culture", change: 2.9 },
-  { group: "Restaurants and hotels", change: 3.8 },
-  { group: "Clothing and footwear", change: 1.2 },
+  ["Food and non-alcoholic drinks", 4.0],
+  ["Housing, water and energy", 2.6],
+  ["Transport", 1.8],
+  ["Health", 3.4],
+  ["Education", 2.1],
+  ["Recreation and culture", 2.9],
+  ["Restaurants and hotels", 3.8],
+  ["Clothing and footwear", 1.2],
 ];
 
-// Regions: population, GDP per capita, unemployment, 2025.
+// Regions, 2025. Each row is [name, capital, population in millions,
+// GDP per capita in AR, unemployment rate in percent].
 export const REGIONS = [
-  { name: "North Coast", population: 4.12, gdpPerCapita: 28410, unemployment: 4.9, capital: "Port Selin" },
-  { name: "Central Valley", population: 5.68, gdpPerCapita: 24180, unemployment: 5.4, capital: "Arun City" },
-  { name: "Highlands", population: 2.34, gdpPerCapita: 16870, unemployment: 7.2, capital: "Kerta" },
-  { name: "Eastern Plains", population: 3.05, gdpPerCapita: 19340, unemployment: 6.1, capital: "Tomba" },
-  { name: "Southern Isles", population: 1.87, gdpPerCapita: 22150, unemployment: 5.9, capital: "Nusa Mara" },
-  { name: "Western Hills", population: 1.36, gdpPerCapita: 15420, unemployment: 8.3, capital: "Belo" },
+  ["North Coast", "Port Selin", 4.12, 28410, 4.9],
+  ["Central Valley", "Arun City", 5.68, 24180, 5.4],
+  ["Highlands", "Kerta", 2.34, 16870, 7.2],
+  ["Eastern Plains", "Tomba", 3.05, 19340, 6.1],
+  ["Southern Isles", "Nusa Mara", 1.87, 22150, 5.9],
+  ["Western Hills", "Belo", 1.36, 15420, 8.3],
 ];
 
-// Latest releases.
+// Headline indicators for the front page. Each entry is
+// [label, value, change on the previous period, source, note].
+export const HEADLINES = [
+  ["Population", "18.42m", "+0.9% on 2024", "Population Estimates 2025", "Mid-year estimate, 30 June 2025."],
+  ["GDP", "AR 412.6bn", "+4.1% real growth", "National Accounts 2025", "Current prices; real growth at 2020 prices."],
+  ["GDP per capita", "AR 22,398", "+3.2% on 2024", "National Accounts 2025", "Current prices."],
+  ["Unemployment rate", "5.8%", "0.4 points lower", "Labour Force Survey, Q3 2025", "People aged 15 to 64, seasonally adjusted."],
+  ["Inflation (CPI)", "3.1%", "0.6 points lower", "Consumer Prices, October 2025", "Annual change, all items."],
+  ["Median monthly income", "AR 1,940", "+5.2% nominal", "Household Income Survey 2024", "Employees, gross, before tax."],
+];
+
+// Latest releases. Each row is [date, title, detail].
 export const RELEASES = [
-  { date: "14 Nov 2026", title: "Consumer price index, October 2025", detail: "Annual inflation 3.1%, down from 3.7% in September." },
-  { date: "31 Oct 2026", title: "Labour force survey, Q3 2025", detail: "Unemployment 5.8%; participation 68.7%, the highest since 2019." },
-  { date: "15 Oct 2026", title: "National accounts, Q2 2025", detail: "GDP grew 4.1% on the year; manufacturing added 0.9 points." },
-  { date: "30 Sep 2026", title: "Population estimates, mid-2025", detail: "Population 18.42 million; the 65+ share reached 8.2%." },
-  { date: "12 Sep 2026", title: "Regional accounts 2024", detail: "North Coast GDP per capita AR 28,410, the highest of six regions." },
-  { date: "28 Aug 2026", title: "Household income survey 2024", detail: "Median monthly income AR 1,940; the Gini index stands at 0.38." },
+  ["14 Nov 2026", "Consumer price index, October 2025", "Annual inflation 3.1%, down from 3.7% in September."],
+  ["31 Oct 2026", "Labour force survey, Q3 2025", "Unemployment 5.8%; participation 68.7%, the highest since 2019."],
+  ["15 Oct 2026", "National accounts, Q2 2025", "GDP grew 4.1% on the year; manufacturing added 0.9 points."],
+  ["30 Sep 2026", "Population estimates, mid-2025", "Population 18.42 million; the 65+ share reached 8.2%."],
+  ["12 Sep 2026", "Regional accounts 2024", "North Coast GDP per capita AR 28,410, the highest of six regions."],
+  ["28 Aug 2026", "Household income survey 2024", "Median monthly income AR 1,940; the Gini index stands at 0.38."],
 ];
