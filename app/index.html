@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arunika in Numbers — National Statistics Office of Arunika</title>
+<meta name="description" content="Population, economy, jobs, prices and regions of Arunika, published by the National Statistics Office. Every figure carries its source and year.">
+<link rel="stylesheet" href="style.css">
+<script type="module" src="main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#/overview">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span class="brand-text">
+        <strong>Arunika in Numbers</strong>
+        <small>National Statistics Office of Arunika</small>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Main sections">
+      <a href="#/overview" data-route="overview">Overview</a>
+      <a href="#/population" data-route="population">Population</a>
+      <a href="#/economy" data-route="economy">Economy</a>
+      <a href="#/labour" data-route="labour">Jobs</a>
+      <a href="#/prices" data-route="prices">Prices</a>
+      <a href="#/regions" data-route="regions">Regions</a>
+      <a href="#/data" data-route="data">Data &amp; sources</a>
+    </nav>
+    <form class="site-search" id="site-search" role="search">
+      <label class="visually-hidden" for="search-box">Search statistics</label>
+      <input id="search-box" type="search" placeholder="Search a statistic, e.g. unemployment" autocomplete="off">
+      <button type="submit">Search</button>
+    </form>
+  </div>
+  <p class="search-results wrap" id="search-results" hidden></p>
+</header>
+
+<main id="main">
+  <!-- ============ OVERVIEW ============ -->
+  <section class="page" id="page-overview" data-page="overview">
+    <div class="wrap">
+      <p class="eyebrow">Updated 14 November 2026</p>
+      <h1>Arunika, in numbers</h1>
+      <p class="lede">The country's population, economy, jobs and prices, from the office that counts them. Pick a figure to see where it came from, and how it moved.</p>
+      <noscript><p class="noscript-note">This site draws its charts with JavaScript. The tables and figures below still read without it.</p></noscript>
+
+      <aside class="callout" aria-label="This month in brief">
+        <h2>This month in brief</h2>
+        <p>Inflation eased to 3.1% in October, inside the 2 to 4% target band for the first time since 2021. Unemployment fell to 5.8%, the lowest since 2019, while the population passed 18.4 million. <a href="#/prices">Read the prices page</a></p>
+      </aside>
+
+      <div class="kpi-grid" id="kpi-grid" aria-label="Headline indicators"></div>
+
+      <div class="two-col">
+        <article class="card">
+          <h2>Population is still growing</h2>
+          <p class="card-sub">Mid-year population, millions, 2019 to 2025. Source: Population Estimates 2025.</p>
+          <canvas id="chart-population" width="640" height="300" role="img" aria-label="Line chart of population from 17.31 million in 2019 to 18.42 million in 2025"></canvas>
+          <p class="chart-note">Growth slowed to 0.9% in 2025, the lowest since 2019, as births fell and the 65+ share reached 8.2%.</p>
+        </article>
+        <article class="card">
+          <h2>Growth held above 4%</h2>
+          <p class="card-sub">Real GDP growth, % per year, 2019 to 2025. Source: National Accounts 2025.</p>
+          <canvas id="chart-gdp" width="640" height="300" role="img" aria-label="Bar chart of real GDP growth, from minus 1.8 percent in 2020 to 4.1 percent in 2025"></canvas>
+          <p class="chart-note">Manufacturing and trade carried 2025. The 2020 fall was the only contraction in the series.</p>
+        </article>
+      </div>
+
+      <article class="card">
+        <h2>Latest releases</h2>
+        <ul class="release-list" id="release-list"></ul>
+      </article>
+
+      <article class="card">
+        <h2>Start here</h2>
+        <div class="start-grid">
+          <a href="#/population"><strong>Population</strong><span>18.42 million people, age structure and where they live.</span></a>
+          <a href="#/economy"><strong>Economy</strong><span>GDP, trade and what each sector contributes.</span></a>
+          <a href="#/labour"><strong>Jobs</strong><span>Unemployment at 5.8%, and who works where.</span></a>
+          <a href="#/prices"><strong>Prices</strong><span>Inflation at 3.1%, and which groups rose fastest.</span></a>
+          <a href="#/regions"><strong>Regions</strong><span>Six regions compared on income and jobs.</span></a>
+          <a href="#/data"><strong>Data &amp; sources</strong><span>Download the tables and read the methods.</span></a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ POPULATION ============ -->
+  <section class="page" id="page-population" data-page="population" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Population</p>
+      <h1>18.42 million people</h1>
+      <p class="lede">Arunika added 160,000 people in the year to June 2025. The count comes from the mid-year population estimates, built from the 2024 census, birth and death registers, and migration records.</p>
+
+      <div class="two-col">
+        <article class="card">
+          <h2>Population, 2019 to 2025</h2>
+          <p class="card-sub">Millions. Source: Population Estimates 2025.</p>
+          <canvas id="chart-population-full" width="640" height="320" role="img" aria-label="Line chart of population, 17.31 million in 2019 rising to 18.42 million in 2025"></canvas>
+          <div class="year-picker" id="population-year-picker" aria-label="Pick a year"></div>
+          <p class="chart-note" id="population-year-note"></p>
+        </article>
+        <article class="card">
+          <h2>Who lives here</h2>
+          <p class="card-sub">Share of population by age group, 2025. Source: Population Estimates 2025.</p>
+          <canvas id="chart-age" width="640" height="320" role="img" aria-label="Bar chart of age structure: 25 to 54 is the largest group at 41.3 percent"></canvas>
+          <p class="chart-note">Two in five residents are 25 to 54. The 65+ share has risen every year since 2019, from 6.9% to 8.2%.</p>
+        </article>
+      </div>
+
+      <article class="card">
+        <h2>Population by year</h2>
+        <table class="data-table" id="population-table">
+          <thead><tr><th scope="col">Year</th><th scope="col">Population (millions)</th><th scope="col">Change on previous year</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="table-source">Source: National Statistics Office, Population Estimates 2025, table 1.1.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ ECONOMY ============ -->
+  <section class="page" id="page-economy" data-page="economy" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Economy</p>
+      <h1>GDP: AR 412.6 billion</h1>
+      <p class="lede">The economy grew 4.1% in real terms in 2025. GDP per capita reached AR 22,398. The figures below come from the national accounts, published 15 October 2026.</p>
+
+      <div class="two-col">
+        <article class="card">
+          <h2>Real GDP growth</h2>
+          <p class="card-sub">% per year, 2019 to 2025. Source: National Accounts 2025.</p>
+          <canvas id="chart-gdp-full" width="640" height="320" role="img" aria-label="Bar chart of real GDP growth, 2019 to 2025"></canvas>
+          <p class="chart-note">Growth has stayed between 3.8% and 5.2% in every year since the 2020 contraction.</p>
+        </article>
+        <article class="card">
+          <h2>Trade</h2>
+          <p class="card-sub">Exports and imports, AR billion. Source: National Accounts 2025.</p>
+          <canvas id="chart-trade" width="640" height="320" role="img" aria-label="Grouped bar chart of exports and imports, 2019 to 2025"></canvas>
+          <p class="chart-note">Exports reached AR 81.2 billion in 2025. The trade gap narrowed to AR 2.4 billion, the smallest since 2019.</p>
+        </article>
+      </div>
+
+      <article class="card">
+        <h2>What each sector contributes</h2>
+        <p class="card-sub">Share of GDP, 2025. Source: National Accounts 2025, table 2.3.</p>
+        <div class="sector-bars" id="sector-bars"></div>
+        <p class="chart-note">Manufacturing is the largest sector at 19.8%. Agriculture still holds 11.4%, down from 13.9% in 2019.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ LABOUR ============ -->
+  <section class="page" id="page-labour" data-page="labour" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Jobs</p>
+      <h1>Unemployment: 5.8%</h1>
+      <p class="lede">The lowest rate since 2019. 68.7% of people aged 15 to 64 are in the labour force, and 64.7% are in work. Figures from the Labour Force Survey, Q3 2025.</p>
+
+      <div class="two-col">
+        <article class="card">
+          <h2>Unemployment is falling</h2>
+          <p class="card-sub">% of the labour force, 2019 to 2025. Source: Labour Force Survey.</p>
+          <canvas id="chart-unemployment" width="640" height="320" role="img" aria-label="Line chart of unemployment falling from 8.4 percent in 2020 to 5.8 percent in 2025"></canvas>
+          <p class="chart-note">The rate peaked at 8.4% in 2020 and has fallen every year since.</p>
+        </article>
+        <article class="card">
+          <h2>Participation is at a record</h2>
+          <p class="card-sub">Labour force participation and employment rates, %, 2019 to 2025.</p>
+          <canvas id="chart-participation" width="640" height="320" role="img" aria-label="Line chart of participation rising to 68.7 percent and employment to 64.7 percent in 2025"></canvas>
+          <p class="chart-note">Women's participation reached 59.1% in 2025, up 2.3 points on 2023.</p>
+        </article>
+      </div>
+
+      <article class="card">
+        <h2>Who works where</h2>
+        <p class="card-sub">Employment by industry, 2025. Source: Labour Force Survey, Q3 2025, table 4.2.</p>
+        <table class="data-table" id="industry-table">
+          <thead><tr><th scope="col"><button type="button" data-sort="industry">Industry</button></th><th scope="col"><button type="button" data-sort="jobs">Jobs (thousands)</button></th><th scope="col"><button type="button" data-sort="share">Share of jobs</button></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="table-source">Tap a column heading to sort the table.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ PRICES ============ -->
+  <section class="page" id="page-prices" data-page="prices" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Prices</p>
+      <h1>Inflation: 3.1%</h1>
+      <p class="lede">Consumer prices rose 3.1% in the year to October 2025, down from 3.7% in September and inside the office's 2 to 4% target band for the first time since 2021.</p>
+
+      <div class="two-col">
+        <article class="card">
+          <h2>Inflation, 2019 to 2025</h2>
+          <p class="card-sub">Annual CPI change, %. Source: Consumer Prices, October 2025.</p>
+          <canvas id="chart-cpi" width="640" height="320" role="img" aria-label="Bar chart of inflation, peaking at 5.6 percent in 2022 and falling to 3.1 percent in 2025"></canvas>
+          <p class="chart-note">The 2022 peak of 5.6% followed the energy price rise. Food has driven the index since.</p>
+        </article>
+        <article class="card">
+          <h2>What rose fastest</h2>
+          <p class="card-sub">Annual change by CPI group, October 2025. Source: Consumer Prices, October 2025.</p>
+          <div class="sector-bars" id="cpi-bars"></div>
+          <p class="chart-note">Food rose 4.0%, the fastest group. Transport rose slowest, at 1.8%, as fuel prices eased.</p>
+        </article>
+      </div>
+
+      <article class="card">
+        <h2>How the CPI is built</h2>
+        <p>The index tracks the prices of 412 goods and services in 38 towns, weighted by what households actually buy. Food carries a weight of 28.4%, housing 21.7%, and transport 12.9%. Weights come from the Household Expenditure Survey 2023 and are reviewed every five years. The next weight review lands in 2028.</p>
+        <p><a href="#/data">Read the methods note and download the CPI tables</a></p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ REGIONS ============ -->
+  <section class="page" id="page-regions" data-page="regions" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Regions</p>
+      <h1>Six regions, one country</h1>
+      <p class="lede">Central Valley holds 5.68 million people, nearly a third of the country. North Coast has the highest income per person, Western Hills the highest unemployment. Figures for 2025, from the regional accounts.</p>
+
+      <article class="card">
+        <h2>Compare the regions</h2>
+        <p class="card-sub">Pick what to compare. Source: Regional Accounts 2024 and Population Estimates 2025.</p>
+        <div class="compare-controls">
+          <label for="region-metric">Compare by</label>
+          <select id="region-metric">
+            <option value="gdpPerCapita">GDP per capita (AR)</option>
+            <option value="population">Population (millions)</option>
+            <option value="unemployment">Unemployment rate (%)</option>
+          </select>
+        </div>
+        <canvas id="chart-regions" width="640" height="340" role="img" aria-label="Bar chart comparing the six regions"></canvas>
+        <p class="chart-note" id="region-note"></p>
+      </article>
+
+      <article class="card">
+        <h2>Region table</h2>
+        <table class="data-table" id="region-table">
+          <thead><tr><th scope="col">Region</th><th scope="col">Capital</th><th scope="col">Population (millions)</th><th scope="col">GDP per capita (AR)</th><th scope="col">Unemployment</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="table-source">Source: National Statistics Office, Regional Accounts 2024 and Population Estimates 2025.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ DATA & SOURCES ============ -->
+  <section class="page" id="page-data" data-page="data" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Data &amp; sources</p>
+      <h1>Every figure, traced</h1>
+      <p class="lede">Each number on this site names its source and year where it appears. This page lists the publications behind them, how the main measures are built, and the tables you can download.</p>
+
+      <article class="card">
+        <h2>Publications behind this site</h2>
+        <table class="data-table">
+          <thead><tr><th scope="col">Publication</th><th scope="col">Latest edition</th><th scope="col">Used for</th></tr></thead>
+          <tbody>
+            <tr><td>Population Estimates</td><td>2025</td><td>Population, age structure, regions</td></tr>
+            <tr><td>National Accounts</td><td>2025</td><td>GDP, growth, sectors, trade</td></tr>
+            <tr><td>Labour Force Survey</td><td>Q3 2025</td><td>Unemployment, participation, industries</td></tr>
+            <tr><td>Consumer Prices</td><td>October 2025</td><td>Inflation, CPI groups</td></tr>
+            <tr><td>Household Income Survey</td><td>2024</td><td>Median income</td></tr>
+            <tr><td>Regional Accounts</td><td>2024</td><td>Regional GDP per capita</td></tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="card">
+        <h2>Download the tables</h2>
+        <ul class="download-list" id="download-list"></ul>
+        <p class="table-source">Files are comma-separated values, generated from the same data this site draws. Open them in any spreadsheet.</p>
+      </article>
+
+      <article class="card">
+        <h2>Methods in brief</h2>
+        <dl class="methods">
+          <dt>GDP</dt>
+          <dd>Measured at current prices and at 2020 constant prices. Real growth is the change in the constant-price series. The 2024 census set the population base for per-capita figures.</dd>
+          <dt>Unemployment</dt>
+          <dd>A person counts as unemployed when they did no paid work in the reference week, were available to start within two weeks, and looked for work in the previous four weeks. The survey covers 12,400 households each quarter.</dd>
+          <dt>Inflation</dt>
+          <dd>The consumer price index tracks 412 items in 38 towns. Annual change compares the index with the same month a year earlier.</dd>
+          <dt>Regions</dt>
+          <dd>Regional GDP is compiled from business surveys and tax records, allocated to where production happens. Small-region figures carry wider margins of error.</dd>
+        </dl>
+      </article>
+
+      <article class="card">
+        <h2>Corrections</h2>
+        <p>No corrections have been issued for the figures on this site. When a figure changes after publication, the correction is listed here with the old and new value and the reason.</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div>
+      <strong>National Statistics Office of Arunika</strong>
+      <p>1 Census Square, Arun City. Figures on this site are the office's published estimates. Arunika is a fictional country; the office and its statistics were made for this site.</p>
+    </div>
+    <div>
+      <strong>Sections</strong>
+      <p><a href="#/overview">Overview</a> · <a href="#/population">Population</a> · <a href="#/economy">Economy</a><br>
+      <a href="#/labour">Jobs</a> · <a href="#/prices">Prices</a> · <a href="#/regions">Regions</a> · <a href="#/data">Data &amp; sources</a></p>
+    </div>
+    <div>
+      <strong>About this site</strong>
+      <p>Built as a static site: no accounts, no tracking, no network requests beyond its own files. Last updated 14 November 2026.</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
